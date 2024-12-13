@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Memory Card Game</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login to Your Account</h2>
-        <!-- Ensure the form doesn't have an action that causes page reload -->
-        <form id="loginForm">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-        <p id="error-message" class="error-message">Invalid username or password!</p>
+    <div class="container">
+        <h1>Memory Game</h1>
+        <div class="stats">
+            <div class="moves">0 Moves</div>
+            <div class="timer">Time: 0s</div>
+        </div>
+        <div class="game-container">
+            <div class="game"></div>
+        </div>
+        <button class="restart">Restart Game</button>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
+
