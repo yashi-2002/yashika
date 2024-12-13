@@ -1,44 +1,115 @@
-// Mock username and password for demo purposes
-const validUsername = "admin";
-const validPassword = "password123";
+const gameContainer = document.querySelector('.game');
+const movesText = document.querySelector('.moves');
+const timerText = document.querySelector('.timer');
+const restartButton = document.querySelector('.restart');
 
-// Handle login validation
-function validateLogin() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
-    const errorMessage = document.getElementById("error-message");
+const emojis = ['🎮', '🎮', '🎲', '🎲', '🎯', '🎯', '🎨', '🎨', 
+                '🎭', '🎭', '🎪', '🎪', '🎢', '🎢', '🎡', '🎡'];
+let cards = [];
+let flippedCards = [];
+let moves = 0;
+let matches = 0;
+let timer = 0;
+let timerInterval;
+let isPlaying = false;
 
-    // Clear any previous error messages
-    errorMessage.textContent = "";
-
-    // Basic validation
-    if (username === "" || password === "") {
-        errorMessage.textContent = "Both fields are required!";
-        return false; // Prevent form submission
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
+    return array;
+}
 
-    // Check credentials
-    if (username === validUsername && password === validPassword) {
-        // If valid, redirect to the home page
-        localStorage.setItem("loggedIn", "true");
-        window.location.href = "home.html";
-        return false; // Prevent form submission
+function createCard(emoji) {
+    const card = document.createElement('div');
+    card.classList.add('card');
+    
+    const cardFront = document.createElement('div');
+    cardFront.classList.add('card-front');
+    cardFront.textContent = emoji;
+    
+    const cardBack = document.createElement('div');
+    cardBack.classList.add('card-back');
+    
+    card.appendChild(cardFront);
+    card.appendChild(cardBack);
+    
+    card.addEventListener('click', flipCard);
+    return card;
+}
+
+function startGame() {
+    gameContainer.innerHTML = '';
+    cards = [];
+    flippedCards = [];
+    moves = 0;
+    matches = 0;
+    timer = 0;
+    isPlaying = true;
+    
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        timer++;
+        timerText.textContent = `Time: ${timer}s`;
+    }, 1000);
+    
+    movesText.textContent = '0 Moves';
+    
+    const shuffledEmojis = shuffleArray([...emojis]);
+    shuffledEmojis.forEach(emoji => {
+        const card = createCard(emoji);
+        cards.push(card);
+        gameContainer.appendChild(card);
+    });
+}
+
+function flipCard() {
+    if (!isPlaying) return;
+    const card = this;
+    
+    if (flippedCards.length < 2 && !flippedCards.includes(card) && !card.classList.contains('matched')) {
+        card.classList.add('flipped');
+        flippedCards.push(card);
+        
+        if (flippedCards.length === 2) {
+            moves++;
+            movesText.textContent = `${moves} Moves`;
+            checkMatch();
+        }
+    }
+}
+
+function checkMatch() {
+    const [card1, card2] = flippedCards;
+    const emoji1 = card1.querySelector('.card-front').textContent;
+    const emoji2 = card2.querySelector('.card-front').textContent;
+    
+    if (emoji1 === emoji2) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matches++;
+        
+        if (matches === emojis.length / 2) {
+            endGame();
+        }
     } else {
-        errorMessage.textContent = "Invalid username or password!";
-        return false; // Prevent form submission
+        setTimeout(() => {
+            card1.classList.remove('flipped');
+            card2.classList.remove('flipped');
+        }, 1000);
     }
+    
+    flippedCards = [];
 }
 
-// Check if user is logged in (for home page)
-window.onload = function() {
-    const isLoggedIn = localStorage.getItem("loggedIn");
-    if (!isLoggedIn) {
-        window.location.href = "login.html"; // Redirect to login if not logged in
-    }
-};
-
-// Handle logout
-function logout() {
-    localStorage.removeItem("loggedIn");
-    window.location.href = "login.html"; // Redirect to login page after logout
+function endGame() {
+    isPlaying = false;
+    clearInterval(timerInterval);
+    setTimeout(() => {
+        alert(`Congratulations! You won in ${moves} moves and ${timer} seconds!`);
+    }, 500);
 }
+
+restartButton.addEventListener('click', startGame);
+startGame(); 
